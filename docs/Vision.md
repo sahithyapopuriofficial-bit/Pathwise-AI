@@ -1,0 +1,1 @@
+PathWise AI helps students and aspiring professionals identify skill gaps, generate personalized learning roadmaps, and track progress toward their dream careers using AI.
