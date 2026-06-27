@@ -3,33 +3,54 @@ import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   return (
-    <header className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        
+    <header className="sticky top-0 z-50 border-b border-gray-200/60 bg-white/80 backdrop-blur-lg">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
+
         {/* Logo */}
-        <Link href="/" className="text-2xl font-bold text-blue-600">
+        <Link
+          href="/"
+          className="text-3xl font-extrabold tracking-tight text-blue-600"
+        >
           PathWise AI
         </Link>
 
         {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-8 text-gray-700">
-          <a href="#features" className="hover:text-blue-600">
+        <nav className="hidden items-center gap-10 md:flex">
+          <a
+            href="#features"
+            className="font-medium text-gray-600 transition-colors duration-300 hover:text-blue-600"
+          >
             Features
           </a>
-          <a href="#careers" className="hover:text-blue-600">
+
+          <a
+            href="#careers"
+            className="font-medium text-gray-600 transition-colors duration-300 hover:text-blue-600"
+          >
             Careers
           </a>
-          <a href="#how-it-works" className="hover:text-blue-600">
+
+          <a
+            href="#how-it-works"
+            className="font-medium text-gray-600 transition-colors duration-300 hover:text-blue-600"
+          >
             How It Works
           </a>
         </nav>
 
         {/* Buttons */}
-        <div className="flex items-center gap-3">
-          <Button variant="ghost">Login</Button>
-          <Button>Get Started</Button>
-        </div>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            className="font-semibold hover:bg-blue-50 hover:text-blue-600"
+          >
+            Login
+          </Button>
 
+          <Button className="rounded-xl bg-blue-600 px-6 font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700">
+            Get Started
+          </Button>
+        </div>
       </div>
     </header>
   );
