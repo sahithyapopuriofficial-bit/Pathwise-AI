@@ -5,7 +5,6 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-gray-200/60 bg-white/80 backdrop-blur-lg">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6">
-
         {/* Logo */}
         <Link
           href="/"
@@ -40,16 +39,20 @@ export default function Navbar() {
 
         {/* Buttons */}
         <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            className="font-semibold hover:bg-blue-50 hover:text-blue-600"
-          >
-            Login
-          </Button>
+          <Link href="/login">
+            <Button
+              variant="ghost"
+              className="font-semibold hover:bg-blue-50 hover:text-blue-600"
+            >
+              Login
+            </Button>
+          </Link>
 
-          <Button className="rounded-xl bg-blue-600 px-6 font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700">
-            Get Started
-          </Button>
+          <Link href="/signup">
+            <Button className="rounded-xl bg-blue-600 px-6 font-semibold shadow-lg transition-all duration-300 hover:scale-105 hover:bg-blue-700">
+              Get Started
+            </Button>
+          </Link>
         </div>
       </div>
     </header>
