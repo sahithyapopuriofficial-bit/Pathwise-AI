@@ -7,6 +7,7 @@ export const signupSchema = z
       .min(3, "Full name must be at least 3 characters"),
 
     email: z
+      .string()
       .email("Please enter a valid email address"),
 
     password: z

@@ -1,10 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactNode } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 interface AuthCardProps {
   title: string;
   description: string;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function AuthCard({
