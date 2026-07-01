@@ -14,6 +14,11 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 
+import {
+  getLatestAssessment,
+  getRoleSkills,
+} from "@/lib/actions/assessment";
+import SkillAssessmentDialog from "@/components/dashboard/SkillAssessmentDialog";
 import { getProfile, getCareerRoles } from "@/lib/actions/profile";
 import CareerGoalDialog from "@/components/dashboard/CareerGoalDialog";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
@@ -36,6 +41,7 @@ export default async function DashboardPage() {
 
   const profile = await getProfile();
 const careerRoles = await getCareerRoles();
+const latestAssessment = await getLatestAssessment();
 
 const fullName =
   profile?.full_name ??
@@ -44,6 +50,10 @@ const fullName =
   "User";
 
 const targetRole = profile?.target_role ?? null;
+
+const skills = targetRole
+  ? await getRoleSkills(targetRole)
+  : [];
 
   return (
     <DashboardLayout fullName={fullName}>
@@ -129,27 +139,41 @@ const targetRole = profile?.target_role ?? null;
 </DashboardCard>
 
           <DashboardCard
-            title="Skill Progress"
-            description="Track your learning progress."
-            icon={<BarChart3 className="h-6 w-6" />}
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-4xl font-bold text-blue-600">
-                  0%
-                </p>
+  title="Skill Assessment"
+  description="Evaluate your skills for your chosen career."
+  icon={<BarChart3 className="h-6 w-6" />}
+>
+  <div className="space-y-5">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-4xl font-bold text-blue-600">
+          {latestAssessment?.score ?? 0}%
+        </p>
 
-                <p className="mt-2 text-sm text-slate-500">
-                  Start your assessment.
-                </p>
-              </div>
+        <p className="mt-2 text-sm text-slate-500">
+          Latest Assessment Score
+        </p>
+      </div>
 
-              <ProgressRing
-                percentage={0}
-                size={110}
-              />
-            </div>
-          </DashboardCard>
+      <ProgressRing
+        percentage={latestAssessment?.score ?? 0}
+        size={110}
+      />
+    </div>
+
+    {targetRole ? (
+      <SkillAssessmentDialog
+        roleName={targetRole}
+        skills={skills}
+      />
+    ) : (
+      <p className="rounded-lg bg-yellow-50 p-4 text-sm text-yellow-700">
+        Select a Career Goal before starting the
+        assessment.
+      </p>
+    )}
+  </div>
+</DashboardCard>
 
           <DashboardCard
             title="Learning Roadmap"
