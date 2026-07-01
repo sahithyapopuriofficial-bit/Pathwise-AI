@@ -14,6 +14,8 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 
+import { getSkillGap } from "@/lib/actions/skill-gap";
+import SkillGapCard from "@/components/dashboard/SkillGapCard";
 import {
   getLatestAssessment,
   getRoleSkills,
@@ -42,6 +44,7 @@ export default async function DashboardPage() {
   const profile = await getProfile();
 const careerRoles = await getCareerRoles();
 const latestAssessment = await getLatestAssessment();
+const skillGap = await getSkillGap();
 
 const fullName =
   profile?.full_name ??
@@ -227,7 +230,17 @@ const skills = targetRole
             </div>
           </DashboardCard>
         </section>
-
+        {skillGap && (
+  <section className="mt-8">
+    <SkillGapCard
+      score={skillGap.score}
+      strong={skillGap.strong}
+      improving={skillGap.improving}
+      weak={skillGap.weak}
+      nextSkill={skillGap.nextSkill}
+    />
+  </section>
+)}
         {/* Logout */}
         <div className="flex justify-end">
           <LogoutButton />

@@ -58,7 +58,7 @@ export async function saveAssessment(
     };
   }
 
-  // Get Role ID
+  // Find role
   const { data: role } = await supabase
     .from("career_roles")
     .select("id")
@@ -72,14 +72,17 @@ export async function saveAssessment(
     };
   }
 
-  const { error } = await supabase
+  // Save assessment
+  const { data, error } = await supabase
     .from("assessments")
     .insert({
       user_id: user.id,
       role_id: role.id,
       score,
       status: "completed",
-    });
+    })
+    .select()
+    .single();
 
   if (error) {
     return {
@@ -92,7 +95,44 @@ export async function saveAssessment(
 
   return {
     success: true,
-    message: "Assessment saved successfully.",
+    assessmentId: data.id,
+  };
+}
+
+// =====================================
+// Save Individual Skill Ratings
+// =====================================
+
+export async function saveAssessmentSkills(
+  assessmentId: string,
+  ratings: Record<string, number>,
+  skills: {
+    id: string;
+    skill_name: string;
+  }[]
+) {
+  const supabase = await createClient();
+
+  const rows = skills.map((skill) => ({
+    assessment_id: assessmentId,
+    role_skill_id: skill.id,
+    rating: ratings[skill.id] ?? 1,
+  }));
+
+  const { error } = await supabase
+    .from("assessment_skills")
+    .insert(rows);
+
+  if (error) {
+    return {
+      success: false,
+      message: error.message,
+    };
+  }
+
+  return {
+    success: true,
+    message: "Skill ratings saved successfully.",
   };
 }
 

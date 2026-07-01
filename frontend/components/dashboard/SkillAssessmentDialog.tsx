@@ -15,7 +15,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 
-import { saveAssessment } from "@/lib/actions/assessment";
+import {
+  saveAssessment,
+  saveAssessmentSkills,
+} from "@/lib/actions/assessment";
 
 interface Skill {
   id: string;
@@ -36,12 +39,9 @@ export default function SkillAssessmentDialog({
 
   const [open, setOpen] = useState(false);
 
-  const [ratings, setRatings] = useState<
-    Record<string, number>
-  >({});
+  const [ratings, setRatings] = useState<Record<string, number>>({});
 
-  const [isPending, startTransition] =
-    useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const score = useMemo(() => {
     if (skills.length === 0) return 0;
@@ -50,15 +50,10 @@ export default function SkillAssessmentDialog({
       return sum + (ratings[skill.id] ?? 0);
     }, 0);
 
-    return Math.round(
-      (total / (skills.length * 5)) * 100
-    );
+    return Math.round((total / (skills.length * 5)) * 100);
   }, [ratings, skills]);
 
-  function updateRating(
-    skillId: string,
-    value: number
-  ) {
+  function updateRating(skillId: string, value: number) {
     setRatings((prev) => ({
       ...prev,
       [skillId]: value,
@@ -66,38 +61,48 @@ export default function SkillAssessmentDialog({
   }
 
   function handleSubmit() {
-    startTransition(async () => {
-      const result = await saveAssessment(
-        roleName,
-        score
-      );
+  startTransition(async () => {
+    const result = await saveAssessment(roleName, score);
 
-      if (result.success) {
-        setOpen(false);
-        router.refresh();
-      } else {
-        alert(result.message);
-      }
-    });
-  }
+    console.log("Assessment Result:", result);
+    console.log("Skills:", skills);
+    console.log("Ratings:", ratings);
+
+    if (!result.success || !result.assessmentId) {
+      alert(result.message ?? "Unable to save assessment.");
+      return;
+    }
+
+    const skillsResult = await saveAssessmentSkills(
+      result.assessmentId,
+      ratings,
+      skills
+    );
+
+    console.log("Save Skills Result:", skillsResult);
+
+    if (!skillsResult.success) {
+      alert(skillsResult.message);
+      return;
+    }
+
+    setOpen(false);
+    router.refresh();
+  });
+}
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          Start Assessment
-        </Button>
+        <Button>Start Assessment</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            Skill Assessment
-          </DialogTitle>
+          <DialogTitle>Skill Assessment</DialogTitle>
 
           <DialogDescription>
-            Rate your confidence for each required
-            skill.
+            Rate your confidence for each required skill.
           </DialogDescription>
         </DialogHeader>
 
@@ -105,13 +110,13 @@ export default function SkillAssessmentDialog({
           {skills.map((skill) => (
             <div
               key={skill.id}
-              className="space-y-2 rounded-xl border p-4"
+              className="space-y-3 rounded-xl border p-4"
             >
               <Label className="font-semibold">
                 {skill.skill_name}
               </Label>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {[1, 2, 3, 4, 5].map((level) => (
                   <Button
                     key={level}
@@ -122,10 +127,7 @@ export default function SkillAssessmentDialog({
                         : "outline"
                     }
                     onClick={() =>
-                      updateRating(
-                        skill.id,
-                        level
-                      )
+                      updateRating(skill.id, level)
                     }
                   >
                     {level}
@@ -138,7 +140,7 @@ export default function SkillAssessmentDialog({
 
         <div className="rounded-xl bg-blue-50 p-4 text-center">
           <p className="text-sm text-slate-600">
-            Current Score
+            Current Readiness Score
           </p>
 
           <p className="text-4xl font-bold text-blue-600">
@@ -148,12 +150,12 @@ export default function SkillAssessmentDialog({
 
         <DialogFooter>
           <Button
-            onClick={handleSubmit}
-            disabled={isPending}
             className="w-full"
+            disabled={isPending}
+            onClick={handleSubmit}
           >
             {isPending
-              ? "Saving..."
+              ? "Saving Assessment..."
               : "Submit Assessment"}
           </Button>
         </DialogFooter>
