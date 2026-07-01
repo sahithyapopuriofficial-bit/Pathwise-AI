@@ -14,6 +14,8 @@ import {
 
 import { createClient } from "@/lib/supabase/server";
 
+import { getProfile, getCareerRoles } from "@/lib/actions/profile";
+import CareerGoalDialog from "@/components/dashboard/CareerGoalDialog";
 import DashboardLayout from "@/components/dashboard/DashboardLayout";
 import DashboardCard from "@/components/dashboard/DashboardCard";
 import StatsCard from "@/components/dashboard/StatsCard";
@@ -32,10 +34,16 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  const fullName =
-    user.user_metadata?.full_name ??
-    user.email?.split("@")[0] ??
-    "User";
+  const profile = await getProfile();
+const careerRoles = await getCareerRoles();
+
+const fullName =
+  profile?.full_name ??
+  user.user_metadata?.full_name ??
+  user.email?.split("@")[0] ??
+  "User";
+
+const targetRole = profile?.target_role ?? null;
 
   return (
     <DashboardLayout fullName={fullName}>
@@ -67,11 +75,11 @@ export default async function DashboardPage() {
         {/* Quick Stats */}
         <section className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <StatsCard
-            title="Career Goal"
-            value="Not Set"
-            subtitle="Choose your target career"
-            icon={<Briefcase className="h-6 w-6" />}
-          />
+  title="Career Goal"
+  value={targetRole ?? "Not Set"}
+  subtitle="Choose your target career"
+  icon={<Briefcase className="h-6 w-6" />}
+/>
 
           <StatsCard
             title="Skills Learned"
@@ -98,20 +106,27 @@ export default async function DashboardPage() {
         {/* Dashboard Features */}
         <section className="grid gap-6 lg:grid-cols-2">
           <DashboardCard
-            title="Career Goal"
-            description="Choose your dream career path."
-            icon={<Target className="h-6 w-6" />}
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-medium text-slate-700">
-                Not Selected Yet
-              </span>
+  title="Career Goal"
+  description="Choose your dream career path."
+  icon={<Target className="h-6 w-6" />}
+>
+  <div className="flex items-center justify-between">
+    <div>
+      <p className="font-semibold text-slate-800">
+        {targetRole ?? "Not Selected Yet"}
+      </p>
 
-              <DashboardActionButton>
-                Set Goal
-              </DashboardActionButton>
-            </div>
-          </DashboardCard>
+      <p className="text-sm text-slate-500">
+        Your selected career
+      </p>
+    </div>
+
+    <CareerGoalDialog
+      roles={careerRoles}
+      currentRole={targetRole}
+    />
+  </div>
+</DashboardCard>
 
           <DashboardCard
             title="Skill Progress"

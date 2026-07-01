@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
@@ -32,15 +33,20 @@ interface CareerRole {
 
 interface CareerGoalDialogProps {
   roles: CareerRole[];
+  currentRole: string | null;
 }
 
 export default function CareerGoalDialog({
   roles,
+  currentRole,
 }: CareerGoalDialogProps) {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("");
+  const [selectedRole, setSelectedRole] = useState(
+    currentRole ?? ""
+  );
+
   const [isPending, startTransition] = useTransition();
 
   function handleSave() {
@@ -62,15 +68,20 @@ export default function CareerGoalDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          Set Goal
+          {currentRole ? "Edit Goal" : "Set Goal"}
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            Choose Your Career Goal
+            Career Goal
           </DialogTitle>
+
+          <DialogDescription>
+            Select the career you want PathWise AI to
+            personalize your roadmap for.
+          </DialogDescription>
         </DialogHeader>
 
         <Select
@@ -96,9 +107,12 @@ export default function CareerGoalDialog({
         <DialogFooter>
           <Button
             onClick={handleSave}
-            disabled={isPending}
+            disabled={!selectedRole || isPending}
+            className="w-full"
           >
-            {isPending ? "Saving..." : "Save Goal"}
+            {isPending
+              ? "Saving..."
+              : "Save Career Goal"}
           </Button>
         </DialogFooter>
       </DialogContent>
