@@ -29,7 +29,14 @@ import StatsCard from "@/components/dashboard/StatsCard";
 import ProgressRing from "@/components/dashboard/ProgressRing";
 import LogoutButton from "@/components/dashboard/LogoutButton";
 import DashboardActionButton from "@/components/dashboard/DashboardActionButton";
-
+import RoadmapCard from "@/components/dashboard/RoadmapCard";
+import { getLatestRoadmap } from "@/lib/actions/roadmap";
+import GenerateRoadmapButton from "@/components/dashboard/GenerateRoadmapButton";
+import {
+  getRoadmapProgress,
+  getRoadmapCompletion,
+} from "@/lib/actions/roadmap-progress";
+import ResumeUpload from "@/components/dashboard/ResumeUpload";
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -45,6 +52,10 @@ export default async function DashboardPage() {
 const careerRoles = await getCareerRoles();
 const latestAssessment = await getLatestAssessment();
 const skillGap = await getSkillGap();
+const latestRoadmap = await getLatestRoadmap();
+const progress = latestRoadmap
+  ? await getRoadmapProgress(latestRoadmap.id)
+  : []; 
 
 const fullName =
   profile?.full_name ??
@@ -179,24 +190,23 @@ const skills = targetRole
 </DashboardCard>
 
           <DashboardCard
-            title="Learning Roadmap"
-            description="Generate a personalized AI roadmap."
-            icon={<Map className="h-6 w-6" />}
-          >
-            <DashboardActionButton>
-              Generate Roadmap →
-            </DashboardActionButton>
-          </DashboardCard>
+  title="Learning Roadmap"
+  description="Generate a personalized AI roadmap."
+  icon={<Map className="h-6 w-6" />}
+>
+  <GenerateRoadmapButton
+    role={targetRole}
+    weakSkills={skillGap?.weak ?? []}
+  />
+</DashboardCard>
 
           <DashboardCard
-            title="Resume Analyzer"
-            description="Upload your resume for AI feedback."
-            icon={<FileText className="h-6 w-6" />}
-          >
-            <DashboardActionButton>
-              Upload Resume →
-            </DashboardActionButton>
-          </DashboardCard>
+  title="Resume Analyzer"
+  description="Upload your resume for AI analysis."
+  icon={<FileText className="h-6 w-6" />}
+>
+  <ResumeUpload />
+</DashboardCard>
 
           <DashboardCard
             title="AI Career Mentor"
@@ -239,6 +249,16 @@ const skills = targetRole
       weak={skillGap.weak}
       nextSkill={skillGap.nextSkill}
     />
+  </section>
+)}
+        {latestRoadmap && (
+  <section className="mt-8">
+    <RoadmapCard
+  roadmapId={latestRoadmap.id}
+  roadmap={latestRoadmap.generated_plan}
+  estimatedDuration={latestRoadmap.estimated_duration}
+  progress={progress}
+/>
   </section>
 )}
         {/* Logout */}
