@@ -37,6 +37,9 @@ import {
   getRoadmapCompletion,
 } from "@/lib/actions/roadmap-progress";
 import ResumeUpload from "@/components/dashboard/ResumeUpload";
+import ResumeAnalyzerCard from "@/components/dashboard/ResumeAnalyzerCard";
+import { getResumeAnalysis } from "@/lib/actions/resume-analysis";
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -53,6 +56,7 @@ const careerRoles = await getCareerRoles();
 const latestAssessment = await getLatestAssessment();
 const skillGap = await getSkillGap();
 const latestRoadmap = await getLatestRoadmap();
+const resumeAnalysis = await getResumeAnalysis();
 const progress = latestRoadmap
   ? await getRoadmapProgress(latestRoadmap.id)
   : []; 
@@ -259,6 +263,11 @@ const skills = targetRole
   estimatedDuration={latestRoadmap.estimated_duration}
   progress={progress}
 />
+  </section>
+)}
+        {resumeAnalysis && (
+  <section className="mt-8">
+    <ResumeAnalyzerCard analysis={resumeAnalysis} />
   </section>
 )}
         {/* Logout */}

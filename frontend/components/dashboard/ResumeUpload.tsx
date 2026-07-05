@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { saveResume } from "@/lib/actions/resume";
 
+
 export default function ResumeUpload() {
   const router = useRouter();
 
@@ -74,18 +75,41 @@ export default function ResumeUpload() {
 
       // Save metadata to database
       const saveResult = await saveResume(
-        file.name,
-        filePath
-      );
+  file.name,
+  filePath
+);
 
-      if (!saveResult.success) {
-        setErrorMessage(
-          saveResult.message ?? "Failed to save resume."
-        );
-        return;
-      }
+if (!saveResult.success) {
+  setErrorMessage(
+    saveResult.message ?? "Failed to save resume."
+  );
+  return;
+}
 
-      setSuccessMessage("Resume uploaded successfully!");
+// Extract text from resume
+
+// Send to AI Resume Analyzer
+const formData = new FormData();
+
+formData.append("file", file);
+
+const response = await fetch("/api/resume/upload", {
+  method: "POST",
+  body: formData,
+});
+
+const result = await response.json();
+
+if (!result.success) {
+  setErrorMessage(
+    result.message ?? "Resume analysis failed."
+  );
+  return;
+}
+
+setSuccessMessage(
+  "Resume uploaded and analyzed successfully!"
+);
 
       setFile(null);
 
