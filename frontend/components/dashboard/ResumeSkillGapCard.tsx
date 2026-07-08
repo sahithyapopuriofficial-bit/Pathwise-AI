@@ -1,14 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   Brain,
   CheckCircle2,
+  Loader2,
   Sparkles,
   TrendingUp,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -73,39 +77,95 @@ function getProgressWidthClass(value: number) {
 export default function ResumeSkillGapCard({
   analysis,
 }: ResumeSkillGapCardProps) {
-  if (!analysis) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
+
+  useEffect(() => {
+    setCurrentAnalysis(analysis);
+  }, [analysis]);
+
+  const handleAnalyze = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("/api/skill-gap", {
+        method: "POST",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.message || "Failed to analyze skill gap.");
+      }
+
+      setCurrentAnalysis(data.analysis ?? null);
+      router.refresh();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Failed to analyze skill gap."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const activeAnalysis = currentAnalysis;
+
+  if (!activeAnalysis) {
     return (
       <Card className="rounded-2xl border bg-white shadow-sm">
-        <CardHeader>
+        <CardHeader className="space-y-3">
           <CardTitle className="text-2xl font-bold text-slate-900">
             Resume Skill Gap Analysis
           </CardTitle>
+
+          <p className="text-sm text-slate-500">
+            No Skill Gap Analysis has been generated yet. Click "Analyze Skill Gap" to compare your resume with your selected career role.
+          </p>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="rounded-xl border-2 border-dashed border-slate-300 p-8 text-center">
             <Brain className="mx-auto h-12 w-12 text-slate-400" />
 
             <h3 className="mt-4 text-lg font-semibold text-slate-700">
-              No Skill Gap Analysis found.
+              No Skill Gap Analysis has been generated yet.
             </h3>
 
             <p className="mt-2 text-sm text-slate-500">
               Complete your resume analysis first to unlock a personalized skill gap review.
             </p>
           </div>
+
+          <Button onClick={handleAnalyze} disabled={isLoading} className="w-full sm:w-auto">
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing...
+              </>
+            ) : (
+              "Analyze Skill Gap"
+            )}
+          </Button>
+
+          {errorMessage ? (
+            <p className="text-sm text-red-600">{errorMessage}</p>
+          ) : null}
         </CardContent>
       </Card>
     );
   }
 
-  const progressColor = getProgressColor(analysis.match_percentage);
-  const progressTextColor = getProgressTextColor(analysis.match_percentage);
-  const progressWidthClass = getProgressWidthClass(analysis.match_percentage);
+  const progressColor = getProgressColor(activeAnalysis.match_percentage);
+  const progressTextColor = getProgressTextColor(activeAnalysis.match_percentage);
+  const progressWidthClass = getProgressWidthClass(activeAnalysis.match_percentage);
 
   return (
     <Card className="rounded-2xl border bg-white shadow-sm">
-      <CardHeader className="space-y-2">
+      <CardHeader className="space-y-3">
         <CardTitle className="text-2xl font-bold text-slate-900">
           Resume Skill Gap Analysis
         </CardTitle>
@@ -113,6 +173,21 @@ export default function ResumeSkillGapCard({
         <p className="text-sm text-slate-500">
           Personalized skill gap insights based on your resume and target role.
         </p>
+
+        <Button onClick={handleAnalyze} disabled={isLoading} className="w-full sm:w-auto">
+          {isLoading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Analyzing...
+            </>
+          ) : (
+            "Analyze Skill Gap"
+          )}
+        </Button>
+
+        {errorMessage ? (
+          <p className="text-sm text-red-600">{errorMessage}</p>
+        ) : null}
       </CardHeader>
 
       <CardContent className="space-y-8">
@@ -123,14 +198,14 @@ export default function ResumeSkillGapCard({
                 Match Percentage
               </p>
               <p className={`text-5xl font-bold ${progressTextColor}`}>
-                {analysis.match_percentage}%
+                {activeAnalysis.match_percentage}%
               </p>
             </div>
 
             <div className="rounded-full bg-white px-3 py-1 text-sm font-medium text-slate-600 shadow-sm">
-              {analysis.match_percentage >= 80
+              {activeAnalysis.match_percentage >= 80
                 ? "Excellent Match"
-                : analysis.match_percentage >= 50
+                : activeAnalysis.match_percentage >= 50
                   ? "Solid Match"
                   : "Needs Improvement"}
             </div>
@@ -151,8 +226,8 @@ export default function ResumeSkillGapCard({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {analysis.matched_skills.length > 0 ? (
-                analysis.matched_skills.map((skill) => (
+              {activeAnalysis.matched_skills.length > 0 ? (
+                activeAnalysis.matched_skills.map((skill) => (
                   <Badge
                     key={skill}
                     variant="secondary"
@@ -174,8 +249,8 @@ export default function ResumeSkillGapCard({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              {analysis.missing_skills.length > 0 ? (
-                analysis.missing_skills.map((skill) => (
+              {activeAnalysis.missing_skills.length > 0 ? (
+                activeAnalysis.missing_skills.map((skill) => (
                   <Badge
                     key={skill}
                     variant="secondary"
@@ -198,8 +273,8 @@ export default function ResumeSkillGapCard({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {analysis.recommended_skills.length > 0 ? (
-              analysis.recommended_skills.map((skill) => (
+            {activeAnalysis.recommended_skills.length > 0 ? (
+              activeAnalysis.recommended_skills.map((skill) => (
                 <Badge
                   key={skill}
                   variant="secondary"
@@ -220,7 +295,7 @@ export default function ResumeSkillGapCard({
             <h3 className="font-semibold text-slate-900">AI Feedback</h3>
           </div>
 
-          <p className="leading-7 text-slate-600">{analysis.ai_feedback}</p>
+          <p className="leading-7 text-slate-600">{activeAnalysis.ai_feedback}</p>
         </div>
       </CardContent>
     </Card>

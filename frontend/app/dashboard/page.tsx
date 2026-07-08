@@ -39,6 +39,7 @@ import {
 import ResumeUpload from "@/components/dashboard/ResumeUpload";
 import ResumeAnalyzerCard from "@/components/dashboard/ResumeAnalyzerCard";
 import ResumeSkillGapCard from "@/components/dashboard/ResumeSkillGapCard";
+import ResumeSkillGapTrigger from "@/components/dashboard/ResumeSkillGapTrigger";
 import { getResumeAnalysis } from "@/lib/actions/resume-analysis";
 import { getResumeSkillGap } from "@/lib/actions/resume-skill-gap";
 
@@ -271,6 +272,17 @@ const skills = targetRole
         {resumeAnalysis && (
   <section className="mt-8">
     <ResumeAnalyzerCard analysis={resumeAnalysis} />
+  </section>
+)}
+        {resumeAnalysis && (
+  <section className="mt-8">
+    <DashboardCard
+      title="Resume Skill Gap Analysis"
+      description="Compare your resume skills with your selected career role using AI."
+      icon={<Brain className="h-6 w-6" />}
+    >
+      <ResumeSkillGapTrigger />
+    </DashboardCard>
   </section>
 )}
         {resumeSkillGap && (
