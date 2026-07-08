@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as mammoth from "mammoth";
-import PDFParser from "pdf2json";
 import { createClient } from "@/lib/supabase/server";
 import { analyzeResume } from "@/lib/ai/resume-analysis";
 import { saveResume } from "@/lib/actions/resume";
@@ -76,33 +75,20 @@ export async function POST(request: NextRequest) {
     }
 
     let resumeText = "";
+    let analysisInput:
+      | { kind: "text"; text: string }
+      | { kind: "file"; file: Blob; mimeType: string };
 
     if (extension === "pdf") {
-      const buffer = Buffer.from(await file.arrayBuffer());
-      const pdfParser = new PDFParser();
-
-      const text = await new Promise<string>((resolve, reject) => {
-        pdfParser.on("pdfParser_dataError", (err) => {
-          const parserError = typeof err === "object" && err && "parserError" in err
-            ? (err as { parserError?: Error }).parserError
-            : undefined;
-          reject(parserError || err);
-        });
-        pdfParser.on("pdfParser_dataReady", () => {
-          try {
-            resolve(pdfParser.getRawTextContent());
-          } catch (error) {
-            reject(error);
-          }
-        });
-
-        pdfParser.parseBuffer(buffer);
-      });
-
-      resumeText = text;
+      analysisInput = {
+        kind: "file",
+        file: new Blob([fileBuffer], { type: contentType }),
+        mimeType: contentType,
+      };
     } else {
       const docxResult = await mammoth.extractRawText({ buffer: fileBuffer });
       resumeText = docxResult.value;
+      analysisInput = { kind: "text", text: resumeText };
     }
 
     const { error: resumeTextError } = await supabase
@@ -175,7 +161,7 @@ export async function POST(request: NextRequest) {
       .map((skill) => skill.skill_name)
       .filter((skill): skill is string => Boolean(skill));
 
-    const analysis = await analyzeResume(resumeText, targetRole, requiredSkills);
+    const analysis = await analyzeResume(analysisInput, targetRole, requiredSkills);
 
     const analysisResult = await saveResumeAnalysis({
       ats_score: analysis.ats_score,

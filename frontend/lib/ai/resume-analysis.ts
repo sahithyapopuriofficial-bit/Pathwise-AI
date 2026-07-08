@@ -1,5 +1,10 @@
 import { ai } from "./gemini";
 
+type ResumeAnalysisInput =
+  | string
+  | { kind: "text"; text: string }
+  | { kind: "file"; file: Blob; mimeType: string };
+
 export interface ResumeAnalysisResult {
   ats_score: number;
   strengths: string[];
@@ -9,10 +14,17 @@ export interface ResumeAnalysisResult {
 }
 
 export async function analyzeResume(
-  resumeText: string,
+  resumeInput: ResumeAnalysisInput,
   targetRole: string,
   requiredSkills: string[]
 ): Promise<ResumeAnalysisResult> {
+  const resolvedText =
+    typeof resumeInput === "string"
+      ? resumeInput
+      : resumeInput.kind === "text"
+        ? resumeInput.text
+        : "";
+
   const prompt = `
 You are an expert ATS Resume Analyzer.
 
@@ -25,7 +37,7 @@ ${requiredSkills.join(", ")}
 
 Resume:
 
-${resumeText}
+${resolvedText}
 
 Evaluate the resume and return ONLY valid JSON.
 
@@ -54,9 +66,35 @@ Do NOT return explanation.
 Return ONLY JSON.
 `;
 
+  let contents: string | Array<{ role: string; parts: Array<{ text: string } | { fileData: { fileUri: string; mimeType: string } }> }> = prompt;
+
+  if (typeof resumeInput !== "string" && resumeInput.kind === "file") {
+    const uploadedFile = await ai.files.upload({
+      file: resumeInput.file,
+      config: {
+        mimeType: resumeInput.mimeType,
+      },
+    });
+
+    contents = [
+      {
+        role: "user",
+        parts: [
+          { text: prompt },
+          {
+            fileData: {
+              fileUri: uploadedFile.uri ?? "",
+              mimeType: resumeInput.mimeType,
+            },
+          },
+        ],
+      },
+    ];
+  }
+
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
-    contents: prompt,
+    contents,
   });
 
   const text = response.text ?? "";
@@ -68,7 +106,7 @@ Return ONLY JSON.
 
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
+  } catch {
     console.error("Gemini Response:", cleaned);
 
     throw new Error("Failed to parse Gemini response.");
