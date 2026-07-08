@@ -11,6 +11,7 @@ export interface ResumeAnalysisResult {
   missing_skills: string[];
   improvements: string[];
   summary: string;
+  extracted_skills: string[];
 }
 
 export async function analyzeResume(
@@ -58,9 +59,20 @@ The JSON format MUST be:
     "Include GitHub projects.",
     "Mention leadership experience."
   ],
-  "summary": "Overall this resume is suitable for a frontend developer but needs stronger project descriptions and additional cloud-related skills."
+  "summary": "Overall this resume is suitable for a frontend developer but needs stronger project descriptions and additional cloud-related skills.",
+  "extracted_skills": [
+    "React",
+    "TypeScript",
+    "JavaScript",
+    "Git",
+    "HTML",
+    "CSS"
+  ]
 }
 
+Extracted skills must contain ONLY technical skills found in the resume.
+Do NOT include soft skills.
+Do NOT include explanations.
 Do NOT return markdown.
 Do NOT return explanation.
 Return ONLY JSON.

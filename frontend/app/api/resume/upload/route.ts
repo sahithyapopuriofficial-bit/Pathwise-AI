@@ -178,6 +178,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { error: extractedSkillsError } = await supabase
+      .from("resume_analysis")
+      .update({ extracted_skills: analysis.extracted_skills })
+      .eq("user_id", user.id);
+
+    if (extractedSkillsError) {
+      return NextResponse.json(
+        { success: false, message: extractedSkillsError.message },
+        { status: 500 }
+      );
+    }
+
     return NextResponse.json(
       { success: true, message: "Resume analyzed successfully." },
       { status: 200 }
