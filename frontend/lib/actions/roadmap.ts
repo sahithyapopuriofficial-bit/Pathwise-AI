@@ -2,18 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import {
-  ROADMAPS,
-  RoadmapStep,
-} from "@/lib/roadmap-templates";
+import { generateRoadmap as generateAIRoadmap } from "@/lib/ai/roadmap";
 
 // ==============================
 // Generate AI Roadmap
 // ==============================
 
 export async function generateRoadmap(
-  role: string,
-  weakSkills: string[]
+  role: string
 ) {
   const supabase = await createClient();
 
@@ -28,39 +24,66 @@ export async function generateRoadmap(
     };
   }
 
-  const template = ROADMAPS[role];
+  // -------------------------------
+  // Get latest assessment
+  // -------------------------------
+  const { data: latestAssessment } = await supabase
+    .from("assessments")
+    .select("id")
+    .eq("user_id", user.id)
+    .order("completed_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
 
-  if (!template) {
-    return {
-      success: false,
-      message: "Roadmap template not found.",
-    };
+  let weakSkills: string[] = [];
+
+  if (latestAssessment) {
+    const { data: assessmentSkills } = await supabase
+      .from("assessment_skills")
+      .select("role_skill_id,rating")
+      .eq("assessment_id", latestAssessment.id);
+
+    if (assessmentSkills && assessmentSkills.length > 0) {
+      const weakRoleSkillIds = assessmentSkills
+        .filter((item) => item.rating <= 2)
+        .map((item) => item.role_skill_id);
+
+      if (weakRoleSkillIds.length > 0) {
+        const { data: roleSkills } = await supabase
+          .from("role_skills")
+          .select("id,skill_name")
+          .in("id", weakRoleSkillIds);
+
+        weakSkills =
+          roleSkills?.map((skill) => skill.skill_name) ?? [];
+      }
+    }
   }
 
-  // Prioritize weak skills in the roadmap
-  const roadmap: RoadmapStep[] = [...template].sort((a, b) => {
-    const aWeak = weakSkills.some((skill) =>
-      a.title.toLowerCase().includes(skill.toLowerCase())
-    );
+  // -------------------------------
+  // Resume Skill Gap
+  // -------------------------------
+  const { data: skillGap } = await supabase
+    .from("skill_gap_analysis")
+    .select("missing_skills")
+    .eq("user_id", user.id)
+    .maybeSingle();
 
-    const bWeak = weakSkills.some((skill) =>
-      b.title.toLowerCase().includes(skill.toLowerCase())
-    );
+  const missingSkills =
+    skillGap?.missing_skills ?? [];
 
-    if (aWeak && !bWeak) return -1;
-    if (!aWeak && bWeak) return 1;
+  // -------------------------------
+  // Generate AI Roadmap
+  // -------------------------------
+  const roadmap = await generateAIRoadmap(
+    role,
+    weakSkills,
+    missingSkills
+  );
 
-    return a.week - b.week;
-  });
-
-  // Re-number weeks after sorting
-  roadmap.forEach((step, index) => {
-    step.week = index + 1;
-  });
-
-  const estimatedDuration = roadmap.length;
-
-  // Check if the user already has a roadmap
+  // -------------------------------
+  // Existing roadmap?
+  // -------------------------------
   const { data: existingRoadmap } = await supabase
     .from("roadmaps")
     .select("id")
@@ -70,25 +93,25 @@ export async function generateRoadmap(
   let error = null;
 
   if (existingRoadmap) {
-    // Update existing roadmap
     const { error: updateError } = await supabase
       .from("roadmaps")
       .update({
         generated_plan: roadmap,
-        estimated_duration: estimatedDuration,
+        estimated_duration: roadmap.estimated_duration,
+        status: "generated",
         created_at: new Date().toISOString(),
       })
       .eq("id", existingRoadmap.id);
 
     error = updateError;
   } else {
-    // Insert first roadmap
     const { error: insertError } = await supabase
       .from("roadmaps")
       .insert({
         user_id: user.id,
         generated_plan: roadmap,
-        estimated_duration: estimatedDuration,
+        estimated_duration: roadmap.estimated_duration,
+        status: "generated",
       });
 
     error = insertError;
@@ -110,7 +133,6 @@ export async function generateRoadmap(
     roadmap,
   };
 }
-
 // ==============================
 // Get Latest Roadmap
 // ==============================

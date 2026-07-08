@@ -203,9 +203,8 @@ const skills = targetRole
   icon={<Map className="h-6 w-6" />}
 >
   <GenerateRoadmapButton
-    role={targetRole}
-    weakSkills={skillGap?.weak ?? []}
-  />
+  role={targetRole}
+/>
 </DashboardCard>
 
           <DashboardCard
@@ -264,7 +263,10 @@ const skills = targetRole
     <RoadmapCard
   roadmapId={latestRoadmap.id}
   roadmap={latestRoadmap.generated_plan}
-  estimatedDuration={latestRoadmap.estimated_duration}
+  estimatedDuration={
+    latestRoadmap.generated_plan?.estimated_duration ??
+    latestRoadmap.estimated_duration
+  }
   progress={progress}
 />
   </section>

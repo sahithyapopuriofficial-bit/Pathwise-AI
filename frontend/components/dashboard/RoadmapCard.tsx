@@ -5,14 +5,25 @@ import {
   Clock,
   BookOpen,
   CheckCircle2,
+  Code2,
+  BookMarked,
+  FolderGit2,
 } from "lucide-react";
 
 import RoadmapProgressButton from "./RoadmapProgressButton";
 
-interface RoadmapItem {
+interface RoadmapWeek {
   week: number;
   title: string;
-  description: string;
+  skills: string[];
+  resources: string[];
+  project: string;
+}
+
+interface RoadmapData {
+  title: string;
+  estimated_duration: number;
+  weeks: RoadmapWeek[];
 }
 
 interface ProgressItem {
@@ -22,7 +33,7 @@ interface ProgressItem {
 
 interface RoadmapCardProps {
   roadmapId: string;
-  roadmap: RoadmapItem[];
+  roadmap: RoadmapData;
   estimatedDuration: number;
   progress: ProgressItem[];
 }
@@ -33,7 +44,7 @@ export default function RoadmapCard({
   estimatedDuration,
   progress,
 }: RoadmapCardProps) {
-  if (!roadmap || roadmap.length === 0) {
+  if (!roadmap || !roadmap.weeks || roadmap.weeks.length === 0) {
     return (
       <div className="rounded-2xl border bg-white p-6 shadow-sm">
         <h2 className="text-2xl font-bold">
@@ -43,12 +54,12 @@ export default function RoadmapCard({
         <div className="mt-6 rounded-xl border-2 border-dashed border-slate-300 p-8 text-center">
           <BookOpen className="mx-auto h-12 w-12 text-slate-400" />
 
-          <h3 className="mt-4 text-lg font-semibold text-slate-700">
+          <h3 className="mt-4 text-lg font-semibold">
             No Roadmap Available
           </h3>
 
           <p className="mt-2 text-slate-500">
-            Generate your roadmap after completing the Skill Assessment.
+            Generate your roadmap first.
           </p>
         </div>
       </div>
@@ -60,11 +71,11 @@ export default function RoadmapCard({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">
-            AI Learning Roadmap
+            {roadmap.title}
           </h2>
 
           <p className="text-slate-500">
-            Personalized roadmap generated from your assessment.
+            AI Generated Learning Roadmap
           </p>
         </div>
 
@@ -72,14 +83,13 @@ export default function RoadmapCard({
           <Clock className="h-5 w-5 text-blue-600" />
 
           <span className="font-semibold text-blue-700">
-            {estimatedDuration} Week
-            {estimatedDuration > 1 ? "s" : ""}
+            {estimatedDuration} Weeks
           </span>
         </div>
       </div>
 
       <div className="mt-8 space-y-6">
-        {roadmap.map((item) => {
+        {roadmap.weeks.map((item) => {
           const completed =
             progress.find((p) => p.week === item.week)
               ?.completed ?? false;
@@ -91,7 +101,7 @@ export default function RoadmapCard({
             >
               <div className="flex flex-col items-center">
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-full font-bold text-white ${
+                  className={`flex h-12 w-12 items-center justify-center rounded-full text-white font-bold ${
                     completed
                       ? "bg-green-600"
                       : "bg-blue-600"
@@ -104,35 +114,63 @@ export default function RoadmapCard({
                   )}
                 </div>
 
-                {item.week !== roadmap.length && (
-                  <div
-                    className={`mt-2 h-12 w-1 rounded ${
-                      completed
-                        ? "bg-green-300"
-                        : "bg-blue-200"
-                    }`}
-                  />
+                {item.week !== roadmap.weeks.length && (
+                  <div className="mt-2 h-12 w-1 rounded bg-blue-200" />
                 )}
               </div>
 
               <div className="flex-1 rounded-xl border bg-slate-50 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
+                <div className="flex justify-between">
+                  <div className="space-y-4 flex-1">
+
                     <div className="flex items-center gap-2">
                       <CalendarDays className="h-5 w-5 text-blue-600" />
-
                       <h3 className="font-bold">
                         Week {item.week}
                       </h3>
                     </div>
 
-                    <h4 className="mt-3 text-lg font-semibold">
+                    <h4 className="text-xl font-semibold">
                       {item.title}
                     </h4>
 
-                    <p className="mt-2 text-slate-600">
-                      {item.description}
-                    </p>
+                    <div>
+                      <div className="flex items-center gap-2 font-medium">
+                        <Code2 className="h-4 w-4 text-blue-600" />
+                        Skills
+                      </div>
+
+                      <ul className="mt-2 list-disc pl-6 text-slate-600">
+                        {item.skills.map((skill) => (
+                          <li key={skill}>{skill}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 font-medium">
+                        <BookMarked className="h-4 w-4 text-green-600" />
+                        Resources
+                      </div>
+
+                      <ul className="mt-2 list-disc pl-6 text-slate-600">
+                        {item.resources.map((resource) => (
+                          <li key={resource}>{resource}</li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center gap-2 font-medium">
+                        <FolderGit2 className="h-4 w-4 text-purple-600" />
+                        Project
+                      </div>
+
+                      <p className="mt-2 text-slate-600">
+                        {item.project}
+                      </p>
+                    </div>
+
                   </div>
 
                   <RoadmapProgressButton
@@ -149,6 +187,3 @@ export default function RoadmapCard({
     </div>
   );
 }
-
-
-

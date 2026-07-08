@@ -1,64 +1,71 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
-
+import { Loader2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { generateRoadmap } from "@/lib/actions/roadmap";
 
 interface GenerateRoadmapButtonProps {
   role: string | null;
-  weakSkills: string[];
 }
 
 export default function GenerateRoadmapButton({
   role,
-  weakSkills,
 }: GenerateRoadmapButtonProps) {
   const router = useRouter();
-  const [isPending, startTransition] = useTransition();
 
-  function handleGenerateRoadmap() {
+  const [loading, setLoading] = useState(false);
+
+  const handleGenerateRoadmap = async () => {
     if (!role) {
       alert("Please select your Career Goal first.");
       return;
     }
 
-    if (weakSkills.length === 0) {
-      alert(
-        "No weak skills found. Complete a Skill Assessment first."
-      );
-      return;
-    }
+    try {
+      setLoading(true);
 
-    startTransition(async () => {
-      const result = await generateRoadmap(role, weakSkills);
+      const response = await fetch("/api/roadmap", {
+        method: "POST",
+      });
 
-      if (!result.success) {
-        alert(result.message);
-        return;
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message);
       }
 
       router.refresh();
-    });
-  }
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to generate roadmap."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Button
       className="w-full"
-      disabled={isPending}
+      disabled={loading}
       onClick={handleGenerateRoadmap}
     >
-      {isPending ? (
+      {loading ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           Generating Roadmap...
         </>
       ) : (
-        "Generate Roadmap →"
+        <>
+          <Sparkles className="mr-2 h-4 w-4" />
+          Generate AI Roadmap
+        </>
       )}
     </Button>
   );
 }
-
