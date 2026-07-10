@@ -42,6 +42,8 @@ import ResumeSkillGapCard from "@/components/dashboard/ResumeSkillGapCard";
 import ResumeSkillGapTrigger from "@/components/dashboard/ResumeSkillGapTrigger";
 import { getResumeAnalysis } from "@/lib/actions/resume-analysis";
 import { getResumeSkillGap } from "@/lib/actions/resume-skill-gap";
+import CareerMentorCard from "@/components/dashboard/CareerMentorCard";
+import MockInterviewCard from "@/components/dashboard/MockInterviewCard";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -216,16 +218,6 @@ const skills = targetRole
 </DashboardCard>
 
           <DashboardCard
-            title="AI Career Mentor"
-            description="Chat with your personal AI mentor."
-            icon={<Bot className="h-6 w-6" />}
-          >
-            <DashboardActionButton>
-              Ask AI →
-            </DashboardActionButton>
-          </DashboardCard>
-
-          <DashboardCard
             title="Profile Completion"
             description="Complete your profile."
             icon={<Trophy className="h-6 w-6" />}
@@ -292,6 +284,12 @@ const skills = targetRole
     <ResumeSkillGapCard analysis={resumeSkillGap} />
   </section>
 )}
+  <section className="mt-8">
+  <CareerMentorCard />
+</section>
+  <section className="mt-8">
+  <MockInterviewCard />
+</section>
         {/* Logout */}
         <div className="flex justify-end">
           <LogoutButton />
