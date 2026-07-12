@@ -40,6 +40,10 @@ import SkillAssessmentDialog from "@/components/dashboard/SkillAssessmentDialog"
 import SkillGapCard from "@/components/dashboard/SkillGapCard";
 import AnalyticsCharts from "@/components/dashboard/analytics/AnalyticsCharts";
 import { getDashboardChartData } from "@/lib/actions/dashboard-chart-data";
+import { getLatestCareerInsights } from "@/lib/actions/career-insights";
+import CareerInsightsCard from "@/components/dashboard/CareerInsightsCard";
+import GenerateCareerInsightsButton from "@/components/dashboard/GenerateCareerInsightsButton";
+import JobRecommendationsSection from "@/components/dashboard/jobs/JobRecommendationsSection";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -81,6 +85,7 @@ export default async function DashboardPage() {
       : Promise.resolve([]),
   ]);
   const charts = await getDashboardChartData();
+  const careerInsights = await getLatestCareerInsights();
   const fullName =
     profile?.full_name ??
     user.user_metadata?.full_name ??
@@ -118,6 +123,31 @@ export default async function DashboardPage() {
         {charts && (
   <AnalyticsCharts charts={charts} />
 )}
+        {/* AI Career Insights */}
+
+<section className="mt-8">
+  {careerInsights ? (
+    <CareerInsightsCard insights={careerInsights} />
+  ) : (
+    <div className="rounded-2xl border bg-white p-6 shadow-sm">
+      <h2 className="mb-2 text-xl font-bold">
+        AI Career Insights
+      </h2>
+
+      <p className="mb-6 text-slate-500">
+        Generate personalized AI insights based on your assessment,
+        resume, interview performance, and roadmap progress.
+      </p>
+
+      <GenerateCareerInsightsButton />
+    </div>
+  )}
+</section>
+
+        <section>
+          <JobRecommendationsSection />
+        </section>
+
         <section className="grid gap-6 lg:grid-cols-2">
           <DashboardCard
             title="Career Goal"
