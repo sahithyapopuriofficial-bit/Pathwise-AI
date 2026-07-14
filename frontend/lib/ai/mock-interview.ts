@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 export interface MockInterviewContext {
   targetRole: string;
@@ -79,7 +79,7 @@ No markdown.
 No explanation.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getGeminiClient().models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
   });
@@ -93,7 +93,7 @@ No explanation.
 
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
+  } catch {
     console.error("Question Generation Error");
     console.error(text);
 
@@ -137,7 +137,7 @@ No markdown.
 No explanation.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getGeminiClient().models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
   });
@@ -151,7 +151,7 @@ No explanation.
 
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
+  } catch {
     console.error("Answer Evaluation Error");
     console.error(text);
 
@@ -225,7 +225,7 @@ No markdown.
 No explanation.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getGeminiClient().models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
   });
@@ -239,7 +239,7 @@ No explanation.
 
   try {
     return JSON.parse(cleaned);
-  } catch (error) {
+  } catch {
     console.error("Interview Summary Error");
     console.error(text);
 

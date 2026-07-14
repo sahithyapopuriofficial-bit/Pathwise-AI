@@ -14,7 +14,7 @@ export default function InterviewHistoryEmpty() {
       </h2>
 
       <p className="mt-2 text-slate-500">
-        You haven't completed any AI mock interviews yet.
+        You haven&apos;t completed any AI mock interviews yet.
       </p>
 
       <Button

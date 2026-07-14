@@ -10,9 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-interface Props {
-  data: any[];
-}
+interface Props { data: { name: string; score: number; date: string }[]; }
 
 export default function ResumeChart({ data }: Props) {
   return (

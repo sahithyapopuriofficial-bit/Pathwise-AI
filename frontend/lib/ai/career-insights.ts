@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 export interface CareerInsightsInput {
   targetRole: string;
@@ -107,10 +107,15 @@ Rules:
 - No explanation.
 `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: prompt,
-  });
+  const ai = getGeminiClient();
+
+const response = await ai.models.generateContent({
+  model: "gemini-2.5-flash",
+  contents: prompt,
+  config: {
+    responseMimeType: "application/json",
+  },
+});
 
   const text = response.text ?? "";
 

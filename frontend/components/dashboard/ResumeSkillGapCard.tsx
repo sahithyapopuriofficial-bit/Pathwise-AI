@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
@@ -80,11 +80,7 @@ export default function ResumeSkillGapCard({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [currentAnalysis, setCurrentAnalysis] = useState(analysis);
-
-  useEffect(() => {
-    setCurrentAnalysis(analysis);
-  }, [analysis]);
+  const [currentAnalysis, setCurrentAnalysis] = useState<ResumeSkillGapAnalysis | null>(null);
 
   const handleAnalyze = async () => {
     setIsLoading(true);
@@ -112,7 +108,7 @@ export default function ResumeSkillGapCard({
     }
   };
 
-  const activeAnalysis = currentAnalysis;
+  const activeAnalysis = currentAnalysis ?? analysis;
 
   if (!activeAnalysis) {
     return (
@@ -123,7 +119,7 @@ export default function ResumeSkillGapCard({
           </CardTitle>
 
           <p className="text-sm text-slate-500">
-            No Skill Gap Analysis has been generated yet. Click "Analyze Skill Gap" to compare your resume with your selected career role.
+            No Skill Gap Analysis has been generated yet. Click &quot;Analyze Skill Gap&quot; to compare your resume with your selected career role.
           </p>
         </CardHeader>
 

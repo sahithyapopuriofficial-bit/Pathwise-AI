@@ -42,8 +42,8 @@ export async function sendMessageToCareerMentor(
     .limit(1)
     .maybeSingle();
 
-  let strongSkills: string[] = [];
-  let weakSkills: string[] = [];
+  const strongSkills: string[] = [];
+  const weakSkills: string[] = [];
 
   if (assessment) {
     const { data: assessmentSkills } = await supabase
@@ -86,7 +86,7 @@ export async function sendMessageToCareerMentor(
   // -----------------------------
   const { data: resume } = await supabase
     .from("resume_analysis")
-    .select("ats_score, summary")
+    .select("ats_score, ai_summary")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -127,7 +127,7 @@ export async function sendMessageToCareerMentor(
       resume?.ats_score ?? 0,
 
     resumeSummary:
-      resume?.summary ?? "",
+      resume?.ai_summary ?? "",
   };
 
   const aiResponse = await askCareerMentor(

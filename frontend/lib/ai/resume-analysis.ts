@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 type ResumeAnalysisInput =
   | string
@@ -19,17 +19,19 @@ export async function analyzeResume(
   targetRole: string,
   requiredSkills: string[]
 ): Promise<ResumeAnalysisResult> {
-  const resolvedText =
+  const ai = getGeminiClient();
+
+  const resumeText =
     typeof resumeInput === "string"
       ? resumeInput
       : resumeInput.kind === "text"
-        ? resumeInput.text
-        : "";
+      ? resumeInput.text
+      : "";
 
   const prompt = `
 You are an expert ATS Resume Analyzer.
 
-Analyze the following resume for the role of:
+Analyze the following resume for the role:
 
 ${targetRole}
 
@@ -38,49 +40,60 @@ ${requiredSkills.join(", ")}
 
 Resume:
 
-${resolvedText}
+${resumeText}
 
-Evaluate the resume and return ONLY valid JSON.
-
-The JSON format MUST be:
+Return ONLY valid JSON.
 
 {
   "ats_score": 85,
   "strengths": [
     "Strong React knowledge",
-    "Good frontend development experience"
+    "Good frontend experience"
   ],
   "missing_skills": [
     "Docker",
     "CI/CD"
   ],
   "improvements": [
-    "Add measurable achievements.",
-    "Include GitHub projects.",
-    "Mention leadership experience."
+    "Add measurable achievements",
+    "Improve project descriptions"
   ],
-  "summary": "Overall this resume is suitable for a frontend developer but needs stronger project descriptions and additional cloud-related skills.",
+  "summary": "Overall the resume is good but needs stronger cloud experience.",
   "extracted_skills": [
     "React",
     "TypeScript",
     "JavaScript",
-    "Git",
-    "HTML",
-    "CSS"
+    "Node.js",
+    "Git"
   ]
 }
 
-Extracted skills must contain ONLY technical skills found in the resume.
-Do NOT include soft skills.
-Do NOT include explanations.
-Do NOT return markdown.
-Do NOT return explanation.
-Return ONLY JSON.
+Rules:
+- Return JSON only.
+- No markdown.
+- No explanation.
+- extracted_skills should only contain technical skills.
 `;
 
-  let contents: string | Array<{ role: string; parts: Array<{ text: string } | { fileData: { fileUri: string; mimeType: string } }> }> = prompt;
+  let contents:
+    | string
+    | Array<{
+        role: "user";
+        parts: Array<
+          | { text: string }
+          | {
+              fileData: {
+                fileUri: string;
+                mimeType: string;
+              };
+            }
+        >;
+      }> = prompt;
 
-  if (typeof resumeInput !== "string" && resumeInput.kind === "file") {
+  if (
+    typeof resumeInput !== "string" &&
+    resumeInput.kind === "file"
+  ) {
     const uploadedFile = await ai.files.upload({
       file: resumeInput.file,
       config: {
@@ -92,7 +105,9 @@ Return ONLY JSON.
       {
         role: "user",
         parts: [
-          { text: prompt },
+          {
+            text: prompt,
+          },
           {
             fileData: {
               fileUri: uploadedFile.uri ?? "",
@@ -107,20 +122,64 @@ Return ONLY JSON.
   const response = await ai.models.generateContent({
     model: "gemini-2.5-flash",
     contents,
+    config: {
+      responseMimeType: "application/json",
+    },
   });
 
-  const text = response.text ?? "";
-
-  const cleaned = text
-    .replace(/```json/g, "")
+  const text = (response.text ?? "")
+    .replace(/```json/gi, "")
     .replace(/```/g, "")
     .trim();
 
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    console.error("Gemini Response:", cleaned);
-
-    throw new Error("Failed to parse Gemini response.");
+  if (!text) {
+    throw new Error("Gemini returned an empty response.");
   }
+
+  let parsed: unknown;
+
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    console.error("Gemini Response:", text);
+    throw new Error("Failed to parse Gemini JSON response.");
+  }
+
+  const data = parsed as Partial<ResumeAnalysisResult>;
+
+  return {
+    ats_score:
+      typeof data.ats_score === "number"
+        ? data.ats_score
+        : 0,
+
+    strengths: Array.isArray(data.strengths)
+      ? data.strengths.filter(
+          (v): v is string => typeof v === "string"
+        )
+      : [],
+
+    missing_skills: Array.isArray(data.missing_skills)
+      ? data.missing_skills.filter(
+          (v): v is string => typeof v === "string"
+        )
+      : [],
+
+    improvements: Array.isArray(data.improvements)
+      ? data.improvements.filter(
+          (v): v is string => typeof v === "string"
+        )
+      : [],
+
+    summary:
+      typeof data.summary === "string"
+        ? data.summary
+        : "",
+
+    extracted_skills: Array.isArray(data.extracted_skills)
+      ? data.extracted_skills.filter(
+          (v): v is string => typeof v === "string"
+        )
+      : [],
+  };
 }

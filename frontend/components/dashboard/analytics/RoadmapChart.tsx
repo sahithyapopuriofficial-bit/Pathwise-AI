@@ -10,9 +10,7 @@ import {
   CartesianGrid,
 } from "recharts";
 
-interface Props {
-  data: any[];
-}
+interface Props { data: { week: string; progress: number }[]; }
 
 export default function RoadmapChart({ data }: Props) {
   return (

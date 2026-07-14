@@ -102,10 +102,7 @@ export async function getDashboardAnalytics() {
 
   const resumeUploaded = !!resume;
 
-  const resumeScore =
-    resume?.overall_score ??
-    resume?.score ??
-    0;
+  const resumeScore = resume?.ats_score ?? 0;
 
   return {
     totalInterviews,

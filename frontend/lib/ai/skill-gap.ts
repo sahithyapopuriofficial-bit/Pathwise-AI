@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 export interface SkillGapResult {
   matched_skills: string[];
@@ -55,7 +55,7 @@ Do not return explanations.
 Return JSON only.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getGeminiClient().models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
   });

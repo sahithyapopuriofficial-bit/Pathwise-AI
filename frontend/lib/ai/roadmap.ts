@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 export interface RoadmapWeek {
   week: number;
@@ -84,10 +84,15 @@ Do NOT explain anything.
 Return ONLY JSON.
 `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents: prompt,
-  });
+  const ai = getGeminiClient();
+
+const response = await ai.models.generateContent({
+  model: "gemini-2.5-flash",
+  contents: prompt,
+  config: {
+    responseMimeType: "application/json",
+  },
+});
 
   const text = response.text ?? "";
 

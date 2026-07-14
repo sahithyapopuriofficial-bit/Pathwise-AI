@@ -35,14 +35,14 @@ export async function getDashboardChartData() {
 
   const { data: resumes } = await supabase
     .from("resume_analysis")
-    .select("overall_score, score, created_at")
+    .select("ats_score, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });
 
   const resumeChart =
     resumes?.map((item, index) => ({
       name: `Resume ${index + 1}`,
-      score: item.overall_score ?? item.score ?? 0,
+      score: item.ats_score ?? 0,
       date: item.created_at,
     })) ?? [];
 

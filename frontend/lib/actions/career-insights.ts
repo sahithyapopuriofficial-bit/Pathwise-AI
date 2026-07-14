@@ -101,7 +101,7 @@ export async function generateAndSaveCareerInsights(): Promise<GenerateCareerIns
 
     supabase
       .from("skill_gap_analysis")
-      .select("strong_skills, weak_skills, missing_skills")
+      .select("matched_skills, recommended_skills, missing_skills")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -133,10 +133,10 @@ export async function generateAndSaveCareerInsights(): Promise<GenerateCareerIns
           )
         : 0,
     strongSkills: toStringArray(
-      skillGapResult.data?.strong_skills
+      skillGapResult.data?.matched_skills
     ),
     weakSkills: toStringArray(
-      skillGapResult.data?.weak_skills
+      skillGapResult.data?.recommended_skills
     ),
     missingSkills: toStringArray(
       skillGapResult.data?.missing_skills

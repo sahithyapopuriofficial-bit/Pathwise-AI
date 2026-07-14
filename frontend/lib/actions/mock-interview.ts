@@ -63,7 +63,7 @@ export async function createMockInterview(
   const { data: resume } = await supabase
     .from("resume_analysis")
     .select(
-      "summary,strengths,missing_skills"
+      "ai_summary,strengths,missing_skills"
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -75,7 +75,7 @@ export async function createMockInterview(
   const { data: skillGap } = await supabase
     .from("skill_gap_analysis")
     .select(
-      "strong_skills,weak_skills"
+      "matched_skills,recommended_skills"
     )
     .eq("user_id", user.id)
     .maybeSingle();
@@ -86,16 +86,16 @@ export async function createMockInterview(
     assessmentScore: assessment?.score ?? 0,
 
     strongSkills:
-      skillGap?.strong_skills ?? [],
+      skillGap?.matched_skills ?? [],
 
     weakSkills:
-      skillGap?.weak_skills ?? [],
+      skillGap?.recommended_skills ?? [],
 
     missingSkills:
       resume?.missing_skills ?? [],
 
     resumeSummary:
-      resume?.summary ??
+      resume?.ai_summary ??
       "No resume uploaded.",
   };
 

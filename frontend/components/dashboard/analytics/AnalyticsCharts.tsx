@@ -5,12 +5,23 @@ import AssessmentChart from "./AssessmentChart";
 import ResumeChart from "./ResumeChart";
 import RoadmapChart from "./RoadmapChart";
 
+interface ScoreChartPoint {
+  name: string;
+  score: number;
+  date: string;
+}
+
+interface RoadmapChartPoint {
+  week: string;
+  progress: number;
+}
+
 interface Props {
   charts: {
-    interviewChart: any[];
-    assessmentChart: any[];
-    resumeChart: any[];
-    roadmapChart: any[];
+    interviewChart: ScoreChartPoint[];
+    assessmentChart: ScoreChartPoint[];
+    resumeChart: ScoreChartPoint[];
+    roadmapChart: RoadmapChartPoint[];
   };
 }
 

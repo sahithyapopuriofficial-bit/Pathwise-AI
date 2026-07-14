@@ -1,4 +1,4 @@
-import { ai } from "./gemini";
+import { getGeminiClient } from "./gemini";
 
 export interface CareerMentorContext {
   targetRole: string;
@@ -110,7 +110,7 @@ Do NOT return JSON.
 Reply only with the answer.
 `;
 
-  const response = await ai.models.generateContent({
+  const response = await getGeminiClient().models.generateContent({
     model: "gemini-2.5-flash",
     contents: prompt,
   });

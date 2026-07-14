@@ -4,7 +4,6 @@ import {
   Brain,
  CheckCircle2,
  MessageSquare,
- Star,
  BookOpen,
 } from "lucide-react";
 

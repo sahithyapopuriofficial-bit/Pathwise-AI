@@ -13,14 +13,20 @@ export default function GenerateJobRecommendationsButton() {
   const [isPending, startTransition] = useTransition();
 
   const handleGenerate = () => {
+    console.info("[job-recommendations] Generate button clicked");
     startTransition(async () => {
       try {
         const result = await generateAndSaveJobRecommendations();
 
         if (!result.success) {
+          console.error("[job-recommendations] Server action returned an error", result.message);
           toast.error(result.message);
           return;
         }
+
+        console.info("[job-recommendations] Server action completed", {
+          count: result.recommendations.length,
+        });
 
         toast.success(
           "AI Job Recommendations generated successfully!"
