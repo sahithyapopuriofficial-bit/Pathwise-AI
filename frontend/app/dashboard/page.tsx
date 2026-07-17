@@ -115,17 +115,15 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        {analytics && (
-          <section>
+        <section id="analytics">
+          {analytics && (
             <AnalyticsCards analytics={analytics} />
-          </section>
-        )}
-        {charts && (
-  <AnalyticsCharts charts={charts} />
-)}
+          )}
+          {charts && <AnalyticsCharts charts={charts} />}
+        </section>
         {/* AI Career Insights */}
 
-<section className="mt-8">
+<section id="career-insights" className="mt-8">
   {careerInsights ? (
     <CareerInsightsCard insights={careerInsights} />
   ) : (
@@ -144,7 +142,7 @@ export default async function DashboardPage() {
   )}
 </section>
 
-        <section>
+        <section id="job-recommendations">
           <JobRecommendationsSection />
         </section>
 
@@ -172,6 +170,7 @@ export default async function DashboardPage() {
             </div>
           </DashboardCard>
 
+          <div id="assessment">
           <DashboardCard
             title="Skill Assessment"
             description="Evaluate your skills for your chosen career."
@@ -207,7 +206,9 @@ export default async function DashboardPage() {
               )}
             </div>
           </DashboardCard>
+          </div>
 
+          <div id="roadmap">
           <DashboardCard
             title="Learning Roadmap"
             description="Generate a personalized AI roadmap."
@@ -215,18 +216,21 @@ export default async function DashboardPage() {
           >
             <GenerateRoadmapButton role={targetRole} />
           </DashboardCard>
+          </div>
 
-          <DashboardCard
-            title="Resume Analyzer"
-            description="Upload your resume for AI analysis."
-            icon={<FileText className="h-6 w-6" />}
-          >
-            <ResumeUpload />
-          </DashboardCard>
+          <div id="resume-upload">
+            <DashboardCard
+              title="Resume Analyzer"
+              description="Upload your resume for AI analysis."
+              icon={<FileText className="h-6 w-6" />}
+            >
+              <ResumeUpload />
+            </DashboardCard>
+          </div>
         </section>
 
         {skillGap && (
-          <section>
+          <section id="skill-gap-analysis">
             <SkillGapCard
               score={skillGap.score}
               strong={skillGap.strong}
@@ -252,7 +256,7 @@ export default async function DashboardPage() {
         )}
 
         {resumeAnalysis && (
-          <section>
+          <section id="resume-analysis">
             <ResumeAnalyzerCard analysis={resumeAnalysis} />
           </section>
         )}
@@ -275,11 +279,11 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        <section>
+        <section id="career-mentor">
           <CareerMentorCard />
         </section>
 
-        <section>
+        <section id="mock-interview">
           <MockInterviewCard />
         </section>
 
