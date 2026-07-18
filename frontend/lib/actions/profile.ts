@@ -254,3 +254,29 @@ export async function updateProfile(values: Partial<ProfileFormValues>) {
   return { success: true, message: "Profile updated successfully." };
 }
 
+export async function updateProfilePhoto(profilePhoto: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, message: "User not authenticated." };
+  }
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ profile_photo: profilePhoto })
+    .eq("user_id", user.id)
+    .select("user_id")
+    .maybeSingle();
+
+  if (error) return { success: false, message: error.message };
+  if (!data) return { success: false, message: "Profile not found." };
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/profile");
+
+  return { success: true, message: "Profile photo updated successfully." };
+}
+

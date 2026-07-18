@@ -141,14 +141,14 @@ export default function DashboardHeader({
   };
 
   return (
-    <header className="flex items-center justify-between border-b bg-white px-8 py-5 shadow-sm">
+    <header className="flex items-center justify-between border-b bg-card px-8 py-5 shadow-sm">
       {/* Left Section */}
       <div>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           {today}
         </p>
 
-        <h1 className="mt-1 text-3xl font-bold text-slate-800">
+        <h1 className="mt-1 text-3xl font-bold text-foreground">
           Welcome back, {safeName} 👋
         </h1>
       </div>
@@ -158,15 +158,15 @@ export default function DashboardHeader({
         {/* Search */}
         <div className="relative hidden md:block">
           <form
-            className="flex items-center gap-2 rounded-xl border bg-slate-50 px-3 py-2"
+            className="flex items-center gap-2 rounded-xl border bg-muted px-3 py-2"
             onSubmit={handleSubmit}
           >
-            <Search className="h-4 w-4 text-slate-400" />
+            <Search className="h-4 w-4 text-muted-foreground" />
 
             <input
               type="text"
               placeholder="Search..."
-              className="bg-transparent text-sm outline-none placeholder:text-slate-400"
+              className="bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               value={query}
               onChange={(event) => {
                 setQuery(event.target.value);
@@ -177,12 +177,12 @@ export default function DashboardHeader({
           </form>
 
           {isOpen && suggestions.length > 0 && (
-            <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border bg-white py-1 shadow-lg">
+            <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border bg-popover py-1 shadow-lg">
               {suggestions.map((section) => (
                 <button
                   key={section.id}
                   type="button"
-                  className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  className="w-full px-4 py-2 text-left text-sm text-popover-foreground hover:bg-muted"
                   onClick={() => navigateToSection(section.id)}
                 >
                   {section.label}
@@ -241,26 +241,26 @@ export default function DashboardHeader({
             <div
               role="menu"
               aria-label="Account menu"
-              className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border bg-white py-2 shadow-lg"
+              className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-xl border bg-popover py-2 shadow-lg"
             >
               <div className="flex items-center gap-3 border-b px-4 py-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
                   {initials}
                 </div>
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-slate-800">{safeName}</p>
-                  <p className="truncate text-xs text-slate-500">{email}</p>
+                  <p className="truncate text-sm font-semibold text-popover-foreground">{safeName}</p>
+                  <p className="truncate text-xs text-muted-foreground">{email}</p>
                 </div>
               </div>
 
               <div className="py-1">
-                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50" onClick={() => navigateTo("/dashboard/profile")}>
+                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-popover-foreground hover:bg-muted" onClick={() => navigateTo("/dashboard/profile")}>
                   <UserRound className="h-4 w-4" /> My Profile
                 </button>
-                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50" onClick={() => navigateTo("/dashboard/settings")}>
+                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-popover-foreground hover:bg-muted" onClick={() => navigateTo("/dashboard/settings")}>
                   <Settings className="h-4 w-4" /> Account Settings
                 </button>
-                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50" onClick={() => navigateTo("/dashboard/settings")}>
+                <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-popover-foreground hover:bg-muted" onClick={() => navigateTo("/dashboard/settings")}>
                   <KeyRound className="h-4 w-4" /> Change Password
                 </button>
               </div>

@@ -67,7 +67,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="flex min-h-screen w-72 flex-col border-r bg-white shadow-lg">
+    <aside className="flex min-h-screen w-72 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg">
       {/* Logo */}
       <div className="border-b p-8">
         <div className="flex items-center gap-3">
@@ -76,11 +76,11 @@ export default function Sidebar() {
           </div>
 
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">
+            <h1 className="text-2xl font-bold">
               PathWise AI
             </h1>
 
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               AI Career Mentor
             </p>
           </div>
@@ -100,7 +100,7 @@ export default function Sidebar() {
               className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
                 active
                   ? "bg-blue-600 text-white shadow-md"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-blue-600"
+                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               }`}
             >
               <Icon className="h-5 w-5" />
@@ -112,12 +112,12 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="border-t p-5">
-        <div className="rounded-xl bg-slate-100 p-4 text-center">
-          <p className="text-sm font-semibold text-slate-700">
+        <div className="rounded-xl bg-sidebar-accent p-4 text-center">
+          <p className="text-sm font-semibold text-sidebar-accent-foreground">
             PathWise AI
           </p>
 
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Version 1.0
           </p>
         </div>
