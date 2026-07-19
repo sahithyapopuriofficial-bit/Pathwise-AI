@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useTheme } from "@/hooks/use-theme";
@@ -28,13 +28,24 @@ const themes = [
 ] as const;
 
 export default function ThemeCard() {
-  const { theme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <Card className="rounded-2xl border-border/80 shadow-sm transition-shadow duration-300 hover:shadow-md">
       <CardHeader>
-        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><Sun className="size-5" /></div>
-        <CardTitle className="mt-3 text-xl">Appearance</CardTitle>
+        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <Sun className="size-5" />
+        </div>
+
+        <CardTitle className="mt-3 text-xl">
+          Appearance
+        </CardTitle>
 
         <p className="text-sm text-muted-foreground">
           Choose how PathWise AI looks.
@@ -46,7 +57,11 @@ export default function ThemeCard() {
           {themes.map((item) => {
             const Icon = item.icon;
 
-            const active = theme === item.id;
+            const active = mounted
+              ? item.id === "system"
+                ? theme === "system"
+                : resolvedTheme === item.id
+              : false;
 
             return (
               <button
@@ -72,7 +87,7 @@ export default function ThemeCard() {
                   <Icon className="h-6 w-6" />
                 </div>
 
-                <h3 className="font-semibold text-lg">
+                <h3 className="text-lg font-semibold">
                   {item.title}
                 </h3>
 
